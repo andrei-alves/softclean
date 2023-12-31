@@ -1,0 +1,471 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block main %}
+<div class="d-flex justify-content-center mb-2">
+  <h3 class="bg-light w-100 p-2 text-start">Dashboard</h3>
+</div>
+<table class="table">
+  <thead>
+    <tr class="table-primary">
+      <th class="col-md-1">Monday</th>
+      <th class="col-md-1">Tuesday</th>
+      <th class="col-md-1">Wednesday</th>
+      <th class="col-md-1">Thursday</th>
+      <th class="col-md-1">Friday</th>
+      <th class="col-md-1">Saturday</th>
+    </tr>
+    <tr class="table-light">
+      {% for date in dates_current_week %}
+        <th class="p-1">({{ date.strftime('%d/%m') }})</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        {% if this_week_orders[0] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in this_week_orders[0] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if this_week_orders[1] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in this_week_orders[1] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if this_week_orders[2] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in this_week_orders[2] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if this_week_orders[3] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in this_week_orders[3] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if this_week_orders[4] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in this_week_orders[4] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if this_week_orders[5] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in this_week_orders[5] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+    </tr>
+    <tr class="table-light">
+      {% for date in dates_next_week %}
+        <th class="p-1">({{ date.strftime('%d/%m') }})</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>
+        {% if next_week_orders[0] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in next_week_orders[0] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if next_week_orders[1] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in next_week_orders[1] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if next_week_orders[2] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in next_week_orders[2] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if next_week_orders[3] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in next_week_orders[3] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if next_week_orders[4] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in next_week_orders[4] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+      <td>
+        {% if next_week_orders[5] | length == 0 %}
+        <div class="card bg-success-subtle">
+          <div class="card-body">
+            Empty
+          </div>
+        </div>
+        {% endif %}
+        {% for order in next_week_orders[5] %}
+        <div class="card">
+          <div class="card-body p-1">
+            <div class="accordion accordion-flush p-0" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-2 fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ order['id'] }}" aria-expanded="true" aria-controls="collapse{{ order['id'] }}">
+                    {{ order["name"] }} - #{{ order["id"] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ order['id'] }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <ul class="list-group list-group">
+                      {% for service in order["services"] %}
+                      <li class="list-group-item p-1 d-flex justify-content-between"><span><strong>{{ service["quantity"] }}</strong></span><span>{{ service["service"] }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-body-emphasis p-1 d-flex justify-content-between">
+              <span>{{ order["neighborhood"] }}</span><span>{{ order["amount"] }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

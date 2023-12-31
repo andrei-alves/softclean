@@ -1,0 +1,373 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Edit Order #{{ order["id"] }}
+{% endblock %}
+
+{% block main %}
+<div class="d-flex justify-content-center mb-2">
+  <h3 class="bg-light w-75 p-2 text-start">Edit Order</h3>
+</div>
+<div class="d-flex justify-content-center mb-0">
+  <h5 class="bg-light-subtle w-75 p-1 text-center">Order #{{ order["id"] }}</h5>
+</div>
+<div class="d-flex justify-content-center mt-0">
+  <form action="/orders/edit={{ order['id'] }}" method="post" class="w-75 text-start border p-1">
+    <div class="row g-2">
+      <div class="col-md-6">
+        <label for="name" class="form-label">Customer</label>
+        <span class="position-relative">
+          <input type="text" class="form-control" id="name" name="name" autocomplete="off" value="{{ order['name'] }}"
+            disabled>
+          <input type="hidden" name="customer_id" id="customer_id" value="">
+        </span>
+      </div>
+      <div class="col-md-3">
+        <label for="date" class="form-label">Date</label>
+        <input type="date" class="form-control" id="date" name="date" autocomplete="off"
+          value="{{ order['execution_date'] }}" required>
+      </div>
+      <div class="col-md-3">
+        <label for="time" class="form-label">Time</label>
+        <input type="text" class="form-control" id="time" name="time" autocomplete="off" value="{{ order['time'] }}">
+      </div>
+    </div>
+    <hr>
+    <table class="table table-bordered">
+      <thead class="text-center">
+        <tr>
+          <th class="col-md-5">Service</th>
+          <th class="col-md-1">Quant.</th>
+          <th class="col-md-2">Price Un.</th>
+          <th class="col-md-2">Discount</th>
+          <th class="col-md-2">Subtotal</th>
+          <th class="col-md-1"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for service in order["services"] %}
+        <tr class="service_row align-middle">
+          <td>
+            <input type="text" class="form-control" id="service" name="service" autocomplete="off"
+              placeholder="Type to search" value="{{ service['service'] }}" required>
+            <input type="hidden" name="service_id" value="{{ service['id'] }}">
+            <ul class="service_search list-group bg-secondary-subtle z-1 position-absolute p-1 rounded-3 w-auto"
+              style="display:none">
+            </ul>
+          </td>
+          <td>
+            <input type="number" class="form-control" id="quantity" name="quantity" autocomplete="off"
+              value="{{ service['quantity'] }}">
+          </td>
+          <td>
+            <input type="number" class="form-control" id="price_un" name="price_un" autocomplete="off"
+              value="{{ service['price_un'] }}">
+          </td>
+          <td>
+            <input type="number" class="form-control" id="discount_un" name="discount_un" autocomplete="off"
+              value="{{ service['discount_un'] }}">
+          </td>
+          <td>
+            <input type="number" class="form-control" id="subtotal" name="subtotal" autocomplete="off"
+              value="{{ service['subtotal'] }}">
+          </td>
+          <td class="p-1">
+            <a class="btn btn-light" role="button" id="remove_service">&#10060</a>
+          </td>
+        </tr>
+        {% endfor %}
+        <tr class="next_row"></tr>
+        <tr>
+          <td colspan="6">
+            <a class="btn btn-secondary" role="button" id="add_service">Add Service</a>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot class="table-sm">
+        <tr class="fw-bold text-end ">
+          <td colspan="4">Discount:</td>
+          <td colspan="2"><input type="number" class="form-control" id="total_discount" name="total_discount"
+              autocomplete="off" value="{{ order['discount'] }}"></td>
+        </tr>
+        <tr class="fw-bold text-end">
+          <td colspan="4">Total:</td>
+          <td colspan="2"><input type="number" class="form-control" id="total" name="total" autocomplete="off"
+              value="{{ order['amount'] }}"></td>
+        </tr>
+        <tr class="fw-bold text-end">
+          <td colspan="4">Payment:</td>
+          <td colspan="2">
+            <select class="form-select" name="payment_type" id="payment_type">
+              <option selected>{{ order['payment'] }}</option>
+              {% for payment_type in payment_types %}
+              <option value="{{ payment_type }}">{{ payment_type }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="text-end mt-2">
+      <a href="/orders" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+  </form>
+</div>
+
+<script>
+
+  function calculateTotalDiscount() {
+    let discounts_un = document.querySelectorAll("#discount_un");
+    let discountsSum = 0;
+    for (let i = 0; i < discounts_un.length; i++) {
+      if (!isNaN(discounts_un[i].value) && discounts_un[i].value != '') {
+        discountsSum += parseInt(discounts_un[i].value);
+      }
+    }
+    total_discount.value = discountsSum
+  }
+
+  function calculateTotalAmount() {
+    let subtotals = document.querySelectorAll("#subtotal");
+    let totalAmount = 0;
+    for (let i = 0; i < subtotals.length; i++) {
+      if (!isNaN(subtotals[i].value) && subtotals[i].value != '') {
+        totalAmount += parseInt(subtotals[i].value);
+      }
+    }
+    total.value = totalAmount
+  }
+
+  //
+  function formFilling() {
+
+    const services = document.querySelectorAll("#service");
+    const services_search = document.querySelectorAll(".service_search");
+    const quantities = document.querySelectorAll("#quantity");
+    const prices = document.querySelectorAll("#price_un");
+    const discounts_un = document.querySelectorAll("#discount_un");
+    const subtotals = document.querySelectorAll("#subtotal");
+    const total_discount = document.querySelector("#total_discount");
+    const total = document.querySelector("#total");
+
+    let services_searched = [0];
+
+    function hideServiceSearchResults() {
+      services_search[services_search.length - 1].style.display = "none"
+    }
+
+    services[services.length - 1].addEventListener('input', async function() {
+      services[services.length - 1].removeEventListener('focusout', hideServiceSearchResults)
+      services_search[services_search.length - 1].style.display = ""
+
+      let response = await fetch('/service_search?service=' + services[services.length - 1].value);
+      let search_results = await response.json();
+
+      if (search_results.length === 0) {
+        services_search[services_search.length - 1].innerHTML = '<li class="list-group-item">None Found</li>'
+
+        services[services.length - 1].addEventListener('focusout', hideServiceSearchResults)
+
+      } else {
+        let services_list = "";
+        for (let id in search_results) {
+          services_list += '<li class="list-group-item service_searched">' + search_results[id].description + '</li>';
+        }
+        services_search[services_search.length - 1].innerHTML = services_list;
+
+        services_searched = document.querySelectorAll(".service_searched");
+
+        for (let i = 0; i < services_searched.length; i++) {
+          services_searched[i].addEventListener('mouseover', (e) => {
+            services_searched[i].classList += " active"
+          })
+
+          services_searched[i].addEventListener('mouseout', (e) => {
+            services_searched[i].classList.remove("active")
+          })
+
+          services_searched[i].addEventListener('click', (e) => {
+
+            // Find an object by property value in the array
+            let serviceObject = search_results.find(function(obj) {
+              return obj.description === services_searched[i].textContent;
+            });
+
+            services[services.length - 1].value = serviceObject.description;
+            quantities[quantities.length - 1].value = 1;
+            quantities[quantities.length - 1].addEventListener('focusout', (e) => {
+              subtotals[subtotals.length - 1].value = (quantities[quantities.length - 1].value * serviceObject.price) - discounts_un[discounts_un.length - 1].value
+              calculateTotalAmount();
+              calculateTotalDiscount()
+            })
+            prices[prices.length - 1].value = serviceObject.price;
+            subtotals[subtotals.length - 1].value = quantities[quantities.length - 1].value * serviceObject.price;
+            calculateTotalAmount();
+            subtotals[subtotals.length - 1].addEventListener('focusout', (e) => {
+              subtotals[subtotals.length - 1].value = (quantities[quantities.length - 1].value * serviceObject.price) - discounts_un[discounts_un.length - 1].value
+              calculateTotalAmount()
+            })
+            discounts_un[discounts_un.length - 1].addEventListener('focusout', (e) => {
+              subtotals[subtotals.length - 1].value = (serviceObject.price * quantities[quantities.length - 1].value) - discounts_un[discounts_un.length - 1].value
+              calculateTotalAmount()
+              calculateTotalDiscount()
+            })
+
+            services_search[services_search.length - 1].style.display = "none"
+          })
+        }
+      }
+    });
+  }
+
+  // Captures the input fields and apply auto filling script to them
+  const services = document.querySelectorAll("#service");
+  const services_search = document.querySelectorAll(".service_search");
+  const quantities = document.querySelectorAll("#quantity");
+  const prices = document.querySelectorAll("#price_un");
+  let discounts_un = document.querySelectorAll("#discount_un");
+  let subtotals = document.querySelectorAll("#subtotal");
+  const total_discount = document.querySelector("#total_discount");
+  const total = document.querySelector("#total");
+
+  let services_searched = [0];
+
+  function hideServiceSearchResults() {
+    services_search[services_search.length - 1].style.display = "none"
+  }
+
+  for (let i = 0; i < services.length; i++) {
+    services[i].addEventListener('input', async function() {
+      services[i].removeEventListener('focusout', hideServiceSearchResults)
+      services_search[i].style.display = ""
+
+      let response = await fetch('/service_search?service=' + services[i].value);
+      let search_results = await response.json();
+
+      if (search_results.length === 0) {
+        services_search[i].innerHTML = '<li class="list-group-item">None Found</li>'
+
+        services[i].addEventListener('focusout', hideServiceSearchResults)
+
+      } else {
+        let services_list = "";
+        for (let id in search_results) {
+          services_list += '<li class="list-group-item service_searched">' + search_results[id].description + '</li>';
+        }
+        services_search[i].innerHTML = services_list;
+
+        services_searched = document.querySelectorAll(".service_searched");
+
+        for (let j = 0; j < services_searched.length; j++) {
+          services_searched[j].addEventListener('mouseover', (e) => {
+            services_searched[j].classList += " active"
+          })
+
+          services_searched[j].addEventListener('mouseout', (e) => {
+            services_searched[j].classList.remove("active")
+          })
+
+          services_searched[j].addEventListener('click', (e) => {
+
+            // Find an object by property value in the array
+            let serviceObject = search_results.find(function(obj) {
+              return obj.description === services_searched[j].textContent;
+            });
+
+            services[i].value = serviceObject.description;
+            quantities[i].value = 1;
+            quantities[i].addEventListener('focusout', (e) => {
+              subtotals[i].value = (quantities[i].value * serviceObject.price) - discounts_un[i].value
+              calculateTotalAmount();
+              calculateTotalDiscount()
+            })
+            prices[i].value = serviceObject.price;
+            subtotals[i].value = quantities[i].value * serviceObject.price;
+            calculateTotalAmount();
+            subtotals[i].addEventListener('focusout', (e) => {
+              subtotals[i].value = (quantities[i].value * serviceObject.price) - discounts_un[i].value
+              calculateTotalAmount()
+            })
+            discounts_un[i].value = ""
+            discounts_un[i].addEventListener('focusout', (e) => {
+              subtotals[i].value = (serviceObject.price * quantities[i].value) - discounts_un[i].value
+              calculateTotalAmount()
+              calculateTotalDiscount()
+            })
+
+            services_search[i].style.display = "none"
+          })
+        }
+      }
+    })
+  }
+
+
+  // formFilling();
+
+  let delete_buttons = document.querySelectorAll("#remove_service")
+
+  for (let i = 0; i < delete_buttons.length; i++) {
+    delete_buttons[i].addEventListener('click', (e) => {
+      if (delete_buttons.length === 1) {
+        alert("Can't delete this row")
+      } else {
+        delete_buttons[i].parentElement.parentElement.remove()
+        delete_buttons = document.querySelectorAll("#remove_service")
+        discounts_un = document.querySelectorAll("#discount_un");
+        subtotals = document.querySelectorAll("#subtotal");
+        calculateTotalDiscount()
+        calculateTotalAmount()
+      }
+    })
+  }
+
+
+  document.querySelector("#add_service").addEventListener('click', (e) => {
+    document.querySelector(".next_row").innerHTML = document.querySelector(".service_row").innerHTML
+    let inputs = document.querySelector(".next_row").querySelectorAll("input")
+    inputs.forEach((input) => { input.value = '' });
+    document.querySelector(".next_row").insertAdjacentHTML('afterend', '<tr class="next_row"></tr>')
+    document.querySelector(".next_row").className = "service_row align_middle"
+
+    let delete_buttons = document.querySelectorAll("#remove_service")
+
+    delete_buttons[delete_buttons.length - 1].addEventListener('click', (e) => {
+      if (delete_buttons.length === 1) {
+        alert("Can't delete this row")
+      } else {
+        delete_buttons[delete_buttons.length - 1].parentElement.parentElement.remove()
+        delete_buttons = document.querySelectorAll("#remove_service")
+        discounts_un = document.querySelectorAll("#discount_un");
+        subtotals = document.querySelectorAll("#subtotal");
+        calculateTotalDiscount()
+        calculateTotalAmount()
+      }
+    })
+
+    formFilling()
+  })
+
+  document.querySelector("#total_discount").addEventListener('focusout', (e) => {
+    let total_discount = document.querySelector("#total_discount")
+    let total = document.querySelector("#total")
+    let discounts_un = document.querySelectorAll("#discount_un")
+    let discountsSum = 0
+    for (let i = 0; i < discounts_un.length; i++) {
+      if (!isNaN(discounts_un[i].value) && discounts_un[i].value != '') {
+        discountsSum += parseInt(discounts_un[i].value)
+      }
+    }
+    total_discount.value = discountsSum + ((total_discount.value === '') ? 0 : parseInt(total_discount.value))
+
+    let subtotals = document.querySelectorAll("#subtotal");
+    let totalAmount = 0;
+    for (let i = 0; i < subtotals.length; i++) {
+      if (!isNaN(subtotals[i].value) && subtotals[i].value != '') {
+        totalAmount += parseInt(subtotals[i].value);
+      }
+    }
+    total.value = totalAmount - total_discount.value
+  })
+</script>
+{% endblock %}

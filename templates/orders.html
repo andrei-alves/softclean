@@ -1,0 +1,444 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Orders
+{% endblock %}
+
+{% block main %}
+<div class="d-flex justify-content-center mb-2">
+  <h3 class="bg-light w-100 p-2 text-start">Service Orders</h3>
+</div>
+<!-- Button trigger modal -->
+<div class="text-start">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    New Order
+  </button>
+</div>
+<hr>
+<!-- Modal for registring new customer -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Register New Order</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3 border text-start">
+        <form action="/orders" method="post">
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label for="name" class="form-label">Customer</label>
+              <span class="position-relative">
+                <input type="text" class="form-control" id="name" name="name" autocomplete="off"
+                  placeholder="Type to search" required>
+                <input type="hidden" name="customer_id" id="customer_id" value="">
+                <ul class="customer_search list-group bg-secondary-subtle z-1 position-absolute p-1 rounded-3 w-100"
+                  style="display:none">
+                </ul>
+              </span>
+            </div>
+            <div class="col-md-3">
+              <label for="date" class="form-label">Date</label>
+              <input type="date" class="form-control" id="date" name="date" autocomplete="off" required>
+            </div>
+            <div class="col-md-3">
+              <label for="time" class="form-label">Time</label>
+              <input type="text" class="form-control" id="time" name="time" autocomplete="off">
+            </div>
+          </div>
+          <hr>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th class="col-md-5">Service</th>
+                <th class="col-md-1">Quant.</th>
+                <th class="col-md-2">Price Un.</th>
+                <th class="col-md-2">Discount</th>
+                <th class="col-md-2">Subtotal</th>
+                <th class="col-md-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="service_row align-middle">
+                <td>
+                  <input type="text" class="form-control" id="service" name="service" autocomplete="off"
+                    placeholder="Type to search" required>
+                  <ul class="service_search list-group bg-secondary-subtle z-1 position-absolute p-1 rounded-3 w-auto"
+                    style="display:none">
+                  </ul>
+                </td>
+                <td>
+                  <input type="number" class="form-control" id="quantity" name="quantity" autocomplete="off">
+                </td>
+                <td>
+                  <input type="number" class="form-control" id="price_un" name="price_un" autocomplete="off">
+                </td>
+                <td>
+                  <input type="number" class="form-control" id="discount_un" name="discount_un" autocomplete="off">
+                </td>
+                <td>
+                  <input type="number" class="form-control" id="subtotal" name="subtotal" autocomplete="off">
+                </td>
+                <td class="p-1">
+                  <a class="btn btn-light" role="button" id="remove_service">&#10060</a>
+                </td>
+              </tr>
+              <tr class="next_row"></tr>
+              <tr>
+                <td colspan="6">
+                  <a class="btn btn-secondary" role="button" id="add_service">Add Service</a>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="table-sm">
+              <tr class="fw-bold text-end ">
+                <td colspan="4">Discount:</td>
+                <td colspan="2"><input type="number" class="form-control" id="total_discount" name="total_discount"
+                    autocomplete="off"></td>
+              </tr>
+              <tr class="fw-bold text-end">
+                <td colspan="4">Total:</td>
+                <td colspan="2"><input type="number" class="form-control" id="total" name="total" autocomplete="off">
+                </td>
+              </tr>
+              <tr class="fw-bold text-end">
+                <td colspan="4">Payment:</td>
+                <td colspan="2">
+                  <select class="form-select" name="payment_type" id="payment_type">
+                    <option disabled selected>Select</option>
+                    {% for payment_type in payment_types %}
+                    <option value="{{ payment_type }}">{{ payment_type }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="text-end mt-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Register</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Schedule</th>
+        <th scope="col">Address</th>
+        <th scope="col">Value</th>
+        <th scope="col">Status</th>
+        <th scope="col">Payment Status</th>
+        <th scope="col">Technician</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td scope="row">{{ order["id"] }}</td>
+        <td scope="row">{{ order["name"] }}</td>
+        <td>{{ order["execution_date"] }}</td>
+        <td>{{ order["address"] }}, {{ order["address_number"] }}, {{ order["neighborhood"] }}</td>
+        <td>{{ order["amount"] }}</td>
+        <td>
+          <div class="dropdown">
+            <button class="btn btn-sm dropdown-toggle
+            {% if order['status'] == 'Scheduled' %}
+              btn-primary
+            {% elif order['status'] == 'Done' %}
+              btn-success
+            {% else %}
+              btn-danger
+            {% endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ order["status"] }}
+            </button>
+            <ul class="dropdown-menu">
+              {% for status in order_status %}
+                {% if status == order["status"] %}
+                  {% continue %}
+                {% endif %}
+              <li><a class="dropdown-item" href="/orders/change_status?order_id={{ order['id'] }}&status={{ status }}">{{ status }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </td>
+        <td>
+          <div class="dropdown">
+            <button class="btn btn-sm dropdown-toggle
+            {% if order['payment_status'] == 'Paid' %}
+              btn-success
+            {% else %}
+              btn-warning
+            {% endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ order["payment_status"] }}
+            </button>
+            <ul class="dropdown-menu">
+              {% for status in payment_status %}
+                {% if status == order["payment_status"] %}
+                  {% continue %}
+                {% endif %}
+              <li><a class="dropdown-item" href="/orders/change_payment_status?order_id={{ order['id'] }}&payment_status={{ status }}">{{ status }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </td>
+        <td>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ order["technician"] }}
+            </button>
+            <ul class="dropdown-menu">
+              {% for technician in technicians %}
+                {% if technician == order["technician"] %}
+                  {% continue %}
+                {% endif %}
+              <li><a class="dropdown-item" href="/orders/change_technician?order_id={{ order['id'] }}&technician={{ technician }}">{{ technician }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </td>
+        <td>
+          <a href="/orders/edit={{ order['id'] }}"><img src="/static/edit_button.ico" width="30"></a>
+          <a type="button" data-bs-toggle="modal" data-bs-target="#deleteModal{{ order['id'] }}"><img src="/static/delete_button.ico" width="30"></a>
+          <div class="modal fade" id="deleteModal{{ order['id'] }}" tabindex="-1" aria-labelledby="deleteModal{{ order['id'] }}Label" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="deleteModal{{ order['id'] }}Label">Delete Order #{{ order["id"] }}</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to delete this service order?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                  <a href="/orders/remove={{ order['id'] }}" type="button" class="btn btn-primary">Yes</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // Script that deals with dropdown menu of customer in the orders form
+  const customer = document.querySelector("#name");
+  const customer_id = document.querySelector("#customer_id");
+  const customer_search = document.querySelector(".customer_search");
+  let customers_searched = [];
+
+  function hideCustomerSearchResults() {
+    customer_search.style.display = "none"
+  }
+
+  customer.addEventListener('input', async function() {
+    customer.removeEventListener('focusout', hideCustomerSearchResults)
+    customer_search.style.display = ""
+
+    let response = await fetch('/customer_search?customer=' + customer.value);
+    let customers = await response.json();
+
+    if (customers.length === 0) {
+      customer_search.innerHTML = '<li class="list-group-item">None Found</li>'
+
+      customer.addEventListener('focusout', hideCustomerSearchResults)
+
+    } else {
+      let customers_list = "";
+      for (let id in customers) {
+        customers_list += '<li class="list-group-item customer_searched">' + customers[id].name + '</li>';
+      }
+      customer_search.innerHTML = customers_list;
+
+      customers_searched = document.querySelectorAll(".customer_searched");
+
+      for (let i = 0; i < customers_searched.length; i++) {
+        customers_searched[i].addEventListener('mouseover', (e) => {
+          customers_searched[i].classList += " active"
+        })
+
+        customers_searched[i].addEventListener('mouseout', (e) => {
+          customers_searched[i].classList.remove("active")
+        })
+
+        customers_searched[i].addEventListener('click', (e) => {
+          customer.value = customers_searched[i].textContent;
+          let foundCustomer = customers.find(function(customer) {
+            return customer.name === customers_searched[i].textContent;
+          });
+          customer_id.value = foundCustomer.id
+          customer_search.style.display = "none"
+        })
+      }
+    }
+  });
+
+  // Script that deals with dropdown menu of services in the orders form
+
+  function calculateTotalDiscount() {
+    let discounts_un = document.querySelectorAll("#discount_un");
+    let discountsSum = 0;
+    for (let i = 0; i < discounts_un.length; i++) {
+      if (!isNaN(discounts_un[i].value) && discounts_un[i].value != '') {
+        discountsSum += parseInt(discounts_un[i].value);
+      }
+    }
+    total_discount.value = discountsSum
+  }
+
+  function calculateTotalAmount() {
+    let subtotals = document.querySelectorAll("#subtotal");
+    let totalAmount = 0;
+    for (let i = 0; i < subtotals.length; i++) {
+      if (!isNaN(subtotals[i].value) && subtotals[i].value != '') {
+        totalAmount += parseInt(subtotals[i].value);
+      }
+    }
+    total.value = totalAmount
+  }
+
+  //
+  function formFilling() {
+
+    const services = document.querySelectorAll("#service");
+    const services_search = document.querySelectorAll(".service_search");
+    const quantities = document.querySelectorAll("#quantity");
+    const prices = document.querySelectorAll("#price_un");
+    const discounts_un = document.querySelectorAll("#discount_un");
+    const subtotals = document.querySelectorAll("#subtotal");
+    const total_discount = document.querySelector("#total_discount");
+    const total = document.querySelector("#total");
+
+    let services_searched = [0];
+
+    function hideServiceSearchResults() {
+      services_search[services_search.length - 1].style.display = "none"
+    }
+
+    services[services.length - 1].addEventListener('input', async function() {
+      services[services.length - 1].removeEventListener('focusout', hideServiceSearchResults)
+      services_search[services_search.length - 1].style.display = ""
+
+      let response = await fetch('/service_search?service=' + services[services.length - 1].value);
+      let search_results = await response.json();
+
+      if (search_results.length === 0) {
+        services_search[services_search.length - 1].innerHTML = '<li class="list-group-item">None Found</li>'
+
+        services[services.length - 1].addEventListener('focusout', hideServiceSearchResults)
+
+      } else {
+        let services_list = "";
+        for (let id in search_results) {
+          services_list += '<li class="list-group-item service_searched">' + search_results[id].description + '</li>';
+        }
+        services_search[services_search.length - 1].innerHTML = services_list;
+
+        services_searched = document.querySelectorAll(".service_searched");
+
+        for (let i = 0; i < services_searched.length; i++) {
+          services_searched[i].addEventListener('mouseover', (e) => {
+            services_searched[i].classList += " active"
+          })
+
+          services_searched[i].addEventListener('mouseout', (e) => {
+            services_searched[i].classList.remove("active")
+          })
+
+          services_searched[i].addEventListener('click', (e) => {
+
+            // Find an object by property value in the array
+            let serviceObject = search_results.find(function(obj) {
+              return obj.description === services_searched[i].textContent;
+            });
+
+            services[services.length - 1].value = serviceObject.description;
+            quantities[quantities.length - 1].value = 1;
+            quantities[quantities.length - 1].addEventListener('focusout', (e) => {
+              subtotals[subtotals.length - 1].value = (quantities[quantities.length - 1].value * serviceObject.price) - discounts_un[discounts_un.length - 1].value
+              calculateTotalAmount();
+              calculateTotalDiscount()
+            })
+            prices[prices.length - 1].value = serviceObject.price;
+            subtotals[subtotals.length - 1].value = quantities[quantities.length - 1].value * serviceObject.price;
+            calculateTotalAmount();
+            subtotals[subtotals.length - 1].addEventListener('focusout', (e) => {
+              subtotals[subtotals.length - 1].value = (quantities[quantities.length - 1].value * serviceObject.price) - discounts_un[discounts_un.length - 1].value
+              calculateTotalAmount()
+            })
+            discounts_un[discounts_un.length - 1].addEventListener('focusout', (e) => {
+              subtotals[subtotals.length - 1].value = (serviceObject.price * quantities[quantities.length - 1].value) - discounts_un[discounts_un.length - 1].value
+              calculateTotalAmount()
+              calculateTotalDiscount()
+            })
+
+            services_search[services_search.length - 1].style.display = "none"
+          })
+        }
+      }
+    });
+  }
+
+  formFilling();
+
+  document.querySelector("#add_service").addEventListener('click', (e) => {
+    document.querySelector(".next_row").innerHTML = document.querySelector(".service_row").innerHTML
+    document.querySelector(".next_row").insertAdjacentHTML('afterend', '<tr class="next_row"></tr>')
+    document.querySelector(".next_row").className = "service_row align_middle"
+
+    let delete_buttons = document.querySelectorAll("#remove_service")
+
+    delete_buttons[delete_buttons.length - 1].addEventListener('click', (e) => {
+      if (delete_buttons.length === 1) {
+        alert("Can't delete this row")
+      } else {
+        delete_buttons[delete_buttons.length - 1].parentElement.parentElement.remove()
+        delete_buttons = document.querySelectorAll("#remove_service")
+        discounts_un = document.querySelectorAll("#discount_un");
+        subtotals = document.querySelectorAll("#subtotal");
+        calculateTotalDiscount()
+        calculateTotalAmount()
+      }
+    })
+
+    formFilling()
+  })
+
+  document.querySelector("#total_discount").addEventListener('focusout', (e) => {
+    let total_discount = document.querySelector("#total_discount")
+    let total = document.querySelector("#total")
+    let discounts_un = document.querySelectorAll("#discount_un")
+    let discountsSum = 0
+    for (let i = 0; i < discounts_un.length; i++) {
+      if (!isNaN(discounts_un[i].value) && discounts_un[i].value != '') {
+        discountsSum += parseInt(discounts_un[i].value)
+      }
+    }
+    total_discount.value = discountsSum + ((total_discount.value === '') ? 0 : parseInt(total_discount.value))
+
+    let subtotals = document.querySelectorAll("#subtotal");
+    let totalAmount = 0;
+    for (let i = 0; i < subtotals.length; i++) {
+      if (!isNaN(subtotals[i].value) && subtotals[i].value != '') {
+        totalAmount += parseInt(subtotals[i].value);
+      }
+    }
+    total.value = totalAmount - total_discount.value
+  })
+
+
+
+</script>
+{% endblock %}
