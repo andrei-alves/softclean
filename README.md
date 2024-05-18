@@ -2,7 +2,7 @@
 
 #### Video Demo:  https://youtu.be/NxbI-WMlAko
 #### Description:
-This project consists of a wep based application writen in the Flask python framework. The app was designed to serve as a management system for a upholstery cleanning business. It has basically five principal functionalities: (1) Registring of customers; (2) Registring of service orders; (3) Registring of services offered; (4) Registring of staff members; and (5) Dashboard visualisation of services scheduled. For each functionality there is a web page. In each page there are subfeatures that helps managing the entries registered in the database.
+This project consists of a web based application writen in the Flask python framework. The app was designed to serve as a management system for a upholstery cleanning business. It has basically five principal functionalities: (1) Registring of customers; (2) Registring of service orders; (3) Registring of services offered; (4) Registring of staff members; and (5) Dashboard visualisation of services scheduled. For each functionality there is a web page. In each page there are subfeatures that helps managing the entries registered in the database.
 
 ## Project Files Description
 
